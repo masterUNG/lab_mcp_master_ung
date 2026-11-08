@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="th">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>รายการงานฝึก</title>
+<style>
+  body { font: 1.15rem/1.6 system-ui, sans-serif; max-width: 42rem; margin: 2rem auto; padding: 0 1rem; }
+  input, button, select { font: inherit; }
+  li { margin: .5rem 0; }
+</style>
+<h1>รายการงานฝึก</h1>
+<form id="task-form">
+  <label for="task-name">ชื่องาน</label>
+  <input id="task-name" required>
+  <button>เพิ่มงาน</button>
+</form>
+<p>
+  <label for="filter">กรองสถานะ</label>
+  <select id="filter">
+    <option value="all">ทั้งหมด</option>
+    <option value="pending">ค้าง</option>
+    <option value="done">เสร็จ</option>
+  </select>
+</p>
+<p id="count" role="status"></p>
+<ul id="tasks" aria-label="งานที่แสดง"></ul>
+<script>
+  const tasks = [
+    { name: 'ส่งสรุปประชุม', done: false },
+    { name: 'เตรียมห้องประชุม', done: true },
+  ];
+
+  const form = document.querySelector('#task-form');
+  const input = document.querySelector('#task-name');
+  const filter = document.querySelector('#filter');
+  const count = document.querySelector('#count');
+  const list = document.querySelector('#tasks');
+
+  function render() {
+    const visible = tasks.filter(task => filter.value !== 'pending' || !task.done);
+    count.textContent = 'แสดง ' + visible.length + ' งาน';
+    list.replaceChildren(...visible.map(task => {
+      const item = document.createElement('li');
+      const toggle = document.createElement('button');
+      toggle.type = 'button';
+      toggle.textContent = 'เปลี่ยนสถานะ ' + task.name;
+      toggle.addEventListener('click', () => {
+        task.done = !task.done;
+        render();
+      });
+      item.append(task.name + ' — ' + (task.done ? 'เสร็จ' : 'ค้าง') + ' ', toggle);
+      return item;
+    }));
+  }
+
+  form.addEventListener('submit', event => {
+    event.preventDefault();
+    const name = input.value;
+    if (!name) return;
+    tasks.push({ name, done: false });
+    form.reset();
+    render();
+  });
+  filter.addEventListener('change', render);
+  render();
+</script>
+</html>
